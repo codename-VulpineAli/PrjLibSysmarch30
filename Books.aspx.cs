@@ -126,9 +126,50 @@ namespace prjLibrarySystem
                 case "EditBook": LoadBookForEdit(isbn); break;
                 case "DeleteBook": DeleteBook(isbn); break;
                 case "ViewDetails": ViewBookDetails(isbn); break;
+                case "BorrowBook":BorrowBook(isbn); break;
+                    
+                   
             }
         }
+        private void BorrowBook(string isbn)
+        {
+            string memberType = Session["MemberType"]?.ToString();
 
+            if (string.IsNullOrEmpty(memberType))
+            {
+                ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Session expired. Please login again.');", true);
+                return;
+            }
+        }
+            int maxAllowed = 0;
+            int duration = 0;
+
+            if (memberType == "Student")
+            {
+                maxAllowed = settings.StudentMaxBooks;
+                duration = settings.StudentBorrowDays;
+            }
+            else
+            {
+                maxAllowed = settings.TeacherMaxBooks;
+                duration = settings.TeacherBorrowDays;
+            }
+
+            int currentBorrowed = GetCurrentBorrowCount(userId);
+
+            if (currentBorrowed >= maxAllowed)
+            {
+                ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Borrow limit reached');", true);
+                return;
+            }
+
+            DateTime dueDate = DateTime.Now.AddDays(duration);
+
+            // SAVE TRANSACTION
+            SaveBorrowTransaction(userId, isbn, dueDate);
+
+            ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Book borrowed successfully');", true);
+        }
         private void LoadBookForEdit(string isbn)
         {
             try
@@ -308,29 +349,7 @@ namespace prjLibrarySystem
             }
         }
 
-        // Fixed: GetBorrowSettings and SaveBorrowSettings now use tblBorrowPolicies.
-        [WebMethod]
-        public static object GetBorrowSettings()
-        {
-            try
-            {
-                DataTable dt = DatabaseHelper.ExecuteQuery(
-                    "SELECT MemberType, SettingKey, SettingValue FROM tblBorrowPolicies",
-                    new SqlParameter[0]);
-
-                int stuMax = 3, stuDays = 7, tchMax = 10, tchDays = 30;
-                foreach (DataRow row in dt.Rows)
-                {
-                    string mt = row["MemberType"].ToString();
-                    string key = row["SettingKey"].ToString();
-                    int val = Convert.ToInt32(row["SettingValue"]);
-                    if (mt == "Student") { if (key == "MaxBorrowedBooks") stuMax = val; if (key == "BorrowDuration") stuDays = val; }
-                    if (mt == "Teacher") { if (key == "MaxBorrowedBooks") tchMax = val; if (key == "BorrowDuration") tchDays = val; }
-                }
-                return new { StudentMaxBooks = stuMax, StudentBorrowDays = stuDays, TeacherMaxBooks = tchMax, TeacherBorrowDays = tchDays };
-            }
-            catch { return null; }
-        }
+        
 
         [WebMethod]
         public static string SaveBorrowSettings(int studentMaxBooks, int studentBorrowDays,
@@ -415,5 +434,36 @@ namespace prjLibrarySystem
             txtISBN.Text = ""; txtISBN.Enabled = true; txtTitle.Text = ""; txtAuthor.Text = "";
             ddlBookCategory.SelectedIndex = 0; txtTotalCopies.Text = ""; txtDescription.Text = "";
         }
+
+        private dynamic GetBorrowSettings()
+        {
+            DataTable dt = DatabaseHelper.ExecuteQuery(
+                "SELECT MemberType, SettingKey, SettingValue FROM tblBorrowPolicies",
+                null);
+
+            int stuMax = 0, stuDays = 0, tchMax = 0, tchDays = 0;
+
+            foreach (DataRow r in dt.Rows)
+            {
+                string type = r["MemberType"].ToString();
+                string key = r["SettingKey"].ToString();
+                int value = Convert.ToInt32(r["SettingValue"]);
+
+                if (type == "Student" && key == "MaxBorrowedBooks") stuMax = value;
+                if (type == "Student" && key == "BorrowDuration") stuDays = value;
+                if (type == "Teacher" && key == "MaxBorrowedBooks") tchMax = value;
+                if (type == "Teacher" && key == "BorrowDuration") tchDays = value;
+            }
+
+            return new
+            {
+                StudentMaxBooks = stuMax,
+                StudentBorrowDays = stuDays,
+                TeacherMaxBooks = tchMax,
+                TeacherBorrowDays = tchDays
+            };
+        }
     }
+    }
+
 }

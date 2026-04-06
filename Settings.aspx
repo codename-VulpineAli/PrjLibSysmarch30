@@ -69,6 +69,7 @@
                 </ul>
 
                 <div class="tab-content mt-3">
+                        </div>
                     <!-- ================= CATEGORY ================= -->
                     <div class="tab-pane fade show active" id="categories">
                         <div class="mb-3">
@@ -134,26 +135,25 @@
                         </asp:GridView>
                     </div>
 
-                    <!-- ================= POLICY ================= -->
-                    <div class="tab-pane fade" id="policy">
-                        <asp:GridView ID="gvPolicy" runat="server" AutoGenerateColumns="false" CssClass="table table-bordered table-striped">
-                            <Columns>
-                                <asp:BoundField DataField="MemberType" HeaderText="Member Type" />
-                                <asp:BoundField DataField="SettingKey" HeaderText="Setting" />
-                                <asp:BoundField DataField="SettingValue" HeaderText="Value" />
-                                <asp:TemplateField HeaderText="Action">
-                                    <ItemTemplate>
-                                        <asp:Button runat="server" Text="Edit" CssClass="btn btn-primary btn-sm" CommandArgument='<%# Eval("SettingID") %>' OnClick="btnEditPolicy_Click" />
-                                    </ItemTemplate>
-                                </asp:TemplateField>
-                            </Columns>
-                        </asp:GridView>
-                    </div>
-                </div>
-            </main>
-        </div>
-    </div>
+<!-- ================= POLICY ================= -->
+<div class="tab-pane fade" id="policy">
+    
+    <asp:GridView ID="gvPolicy" runat="server" AutoGenerateColumns="false" CssClass="table table-bordered table-striped">
+        <Columns>
+            <asp:BoundField DataField="MemberType" HeaderText="Member Type" />
+            <asp:BoundField DataField="SettingKey" HeaderText="Setting" />
+            <asp:BoundField DataField="SettingValue" HeaderText="Value" />
+            <asp:TemplateField HeaderText="Action">
+                <ItemTemplate>
+                    <asp:Button runat="server" Text="Edit" CssClass="btn btn-primary btn-sm"
+                        CommandArgument='<%# Eval("SettingID") %>'
+                        OnClick="btnEditPolicy_Click" />
+                </ItemTemplate>
+            </asp:TemplateField>
+        </Columns>
+    </asp:GridView>
 
+</div>
     <!-- ================= EDIT MODAL ================= -->
     <div class="modal fade" id="editModal">
         <div class="modal-dialog">

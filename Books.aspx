@@ -29,7 +29,7 @@
         .pagination-bar a.disabled-link{color:#aaa!important;background-color:#f5f5f5!important;border-color:#ddd!important;pointer-events:none;}
         .modal-dialog{position:fixed;top:15vh;left:50%;transform:translateX(-50%);margin:0;max-width:90vw;width:800px;}
         .modal.show .modal-dialog{transform:translateX(-50%)!important;}
-        .modal input[type="text"],.modal input[type="number"]{pointer-events:auto!important;user-select:text!important;}
+        
         .btn-borrow-settings{background:linear-gradient(135deg,#1a237e 0%,#3949ab 100%);border:none;color:white!important;font-weight:500;}
         .btn-borrow-settings:hover{background:linear-gradient(135deg,#283593 0%,#3f51b5 100%);color:white!important;}
         #borrowSettingsModal .modal-dialog{width:540px;}
@@ -57,6 +57,15 @@
         .toast-msg{flex:1;font-size:.92rem;font-weight:500;}
         .toast-close{background:none;border:none;color:rgba(255,255,255,.7);font-size:1.1rem;cursor:pointer;padding:0 0 0 12px;}
         .toast-close:hover{color:white;}
+        .settings-num-input::-webkit-outer-spin-button,
+.settings-num-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.settings-num-input {
+    -moz-appearance: textfield;
+}
     </style>
 </head>
 <body>
@@ -75,7 +84,7 @@
                         <div class="btn-group me-2">
                             <asp:Button ID="btnAddBook" runat="server" Text="Add New Book"
                                 CssClass="btn btn-primary" OnClientClick="resetBookModal(); return false;" CausesValidation="false" />
-                            <asp:Button ID="btnBorrowSettings" runat="server" Text="Borrow Settings"
+                            <asp:Button ID="btnBorrowSettings" runat="server" Text="Borrow Policy"
                                 CssClass="btn btn-borrow-settings ms-2"
                                 OnClientClick="openBorrowSettings(); return false;" CausesValidation="false" />
                         </div>
@@ -143,6 +152,9 @@
                                                 CommandArgument='<%# Eval("ISBN") %>' CssClass="btn btn-sm btn-info"
                                                 CausesValidation="false" data-isbn='<%# Eval("ISBN") %>'
                                                 OnClientClick="return viewBook(this);"><i class="fas fa-eye"></i></asp:LinkButton>
+                                                <asp:LinkButton ID="btnBorrow" runat="server" CommandName="BorrowBook"
+                                                CommandArgument='<%# Eval("ISBN") %>' CssClass="btn btn-sm btn-success"
+                                                CausesValidation="false"> <i class="fas fa-book"></i></asp:LinkButton>
                                         </div>
                                     </ItemTemplate>
                                 </asp:TemplateField>
@@ -233,7 +245,7 @@
         <div class="modal-dialog">
             <div class="modal-content" style="border:none;border-radius:10px;overflow:hidden;">
                 <div class="modal-header">
-                    <h5 class="modal-title"><i class="fas fa-sliders-h me-2"></i>Borrow Settings</h5>
+                    <h5 class="modal-title"><i class="fas fa-sliders-h me-2"></i>Borrow Policy</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" style="padding:20px 24px;">
@@ -262,7 +274,9 @@
                             <div class="col-6">
                                 <p class="settings-input-label mb-1">Max Books to Borrow</p>
                                 <div class="settings-input-wrap">
-                                    <input type="number" id="inputTchMax" class="settings-num-input" min="1" max="50" />
+                                   <input type="number" id="inputTchMax" class="settings-num-input" min="1" max="50" readonly />
+                                     style="pointer-events:none;" />
+                                     </div>
                                     <span class="unit-tag">books</span>
                                 </div>
                             </div>
@@ -276,12 +290,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" id="btnSaveSettings" class="btn btn-save-settings" onclick="saveBorrowSettings()">
-                        <i class="fas fa-save me-1"></i> Save Settings
-                    </button>
-                </div>
+                
             </div>
         </div>
     </div>
